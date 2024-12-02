@@ -1,0 +1,34 @@
+name: docker build and push
+on:
+  push:
+    branches:
+      - release
+jobs:
+  build:
+    name: build and push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0" # for version code
+
+      - name: count
+        run: echo "count=$(git rev-list --all --count)" >> $GITHUB_ENV
+
+      - name: Obtain uppercased/lowercased pair of a repository name
+        id: repo_name_casing
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }} # need lowercase string
+
+      - name: build
+        run: docker build -f Dockerfile.dev -t ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:latest .
+
+      - name: tag
+        run: docker tag ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:latest ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:${{ env.count }}
+
+      - name: login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+
+      - name: push
+        run: docker push ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:${{ env.count }} && docker push ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:latest
