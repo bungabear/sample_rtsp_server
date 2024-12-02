@@ -22,7 +22,7 @@ jobs:
           string: ${{ github.repository }} # need lowercase string
 
       - name: build
-        run: docker build -f Dockerfile.dev -t ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:latest .
+        run: docker build -f Dockerfile -t ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:latest .
 
       - name: tag
         run: docker tag ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:latest ghcr.io/${{ steps.repo_name_casing.outputs.lowercase }}:${{ env.count }}
