@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - release
+
+permissions:
+  packages: write
+
 jobs:
   build:
     name: build and push
